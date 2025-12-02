@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+starlette
+authlib
+httpx
+python-dotenv
+google-generativeai
+pydantic
+itsdangerous
+email-validator
+python-multipart
