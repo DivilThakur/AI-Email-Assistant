@@ -19,15 +19,17 @@ load_dotenv()
 GOOGLE_API_KEY = os.getenv("GEMINI_API_KEY")
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
+BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
 
 genai.configure(api_key=GOOGLE_API_KEY)
-model = genai.GenerativeModel('gemini-2.5-flash-lite')
+model = genai.GenerativeModel('gemini-flash-latest')
 
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:5172"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -78,7 +80,7 @@ def home():
 
 @app.get("/login")
 async def login(request: Request):
-    redirect_uri = 'http://localhost:8000/auth/callback'
+    redirect_uri = f"{BACKEND_URL}/auth/callback"
     return await oauth.google.authorize_redirect(request, redirect_uri, prompt='consent')
 
 @app.get("/logout")
@@ -91,10 +93,10 @@ async def auth_callback(request: Request):
     try:
         token = await oauth.google.authorize_access_token(request)
         request.session['user'] = token
-        return RedirectResponse(url='http://localhost:5173?login_success=true')
+        return RedirectResponse(url=f"{FRONTEND_URL}?login_success=true")
     except Exception as e:
         print(f"Login Error: {e}")
-        return RedirectResponse(url='http://localhost:5173?error=login_failed')
+        return RedirectResponse(url=f"{FRONTEND_URL}?error=login_failed")
 
 @app.get("/read-emails")
 async def read_emails(request: Request):
@@ -286,7 +288,7 @@ async def categorize_emails(request: Request):
             sender = next((h['value'] for h in headers_list if h['name'] == 'From'), 'Unknown')
             snippet = info.get('snippet', '')
 
-            email_txt.append(f"ID: {msg_id} | From: {sender} | Subject: {subject} | Snippet: {snippet}")
+            email_txt.append(f"ID: {msg['id']} | From: {sender} | Subject: {subject} | Snippet: {snippet}")
 
         prompt = f"""
         Analyze these emails. Group them into: 'Urgent', 'Work', 'Personal', 'Promotions'.
