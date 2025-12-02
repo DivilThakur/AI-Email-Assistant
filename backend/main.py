@@ -44,12 +44,6 @@ app.add_middleware(
     same_site='none' if IS_PRODUCTION else 'lax'
 )
 
-app.add_middleware(
-    SessionMiddleware,
-    secret_key="super_secret_random_string",
-    https_only=False,
-    same_site='lax'
-)
 
 config_data = {
     'GOOGLE_CLIENT_ID': GOOGLE_CLIENT_ID,
