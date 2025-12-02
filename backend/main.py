@@ -38,10 +38,11 @@ app.add_middleware(
 IS_PRODUCTION = os.getenv("RENDER") is not None or "onrender" in BACKEND_URL
 
 app.add_middleware(
-    SessionMiddleware, 
-    secret_key="super_secret_random_string", 
-    https_only=IS_PRODUCTION, 
-    same_site='none' if IS_PRODUCTION else 'lax'
+    SessionMiddleware,
+    secret_key="super_secret_random_string",
+    https_only=True,      
+    same_site='none',     
+    max_age=3600           
 )
 
 
